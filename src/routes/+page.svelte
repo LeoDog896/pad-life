@@ -77,6 +77,7 @@
 			}
 
 			// decide whether this cell lives or dies
+			if (clickable(x, y)) continue;
 			const neighborCount = neighbors.filter(([nx, ny]) => map[JSON.stringify([nx, ny])]).length;
 
 			if (neighborCount < 2 || neighborCount > 3) {
