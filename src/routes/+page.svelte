@@ -161,7 +161,7 @@
 <Canvas
 	on:wheel={({ deltaY }) => {
 		boxSize += deltaY / 100;
-		boxSize = Math.min(Math.max(30, boxSize), 100);
+		boxSize = Math.min(Math.max(20, boxSize), 100);
 	}}
 	on:mousedown={() => {
 		mouseDown = true;
