@@ -13,8 +13,10 @@
 	let height: number;
 
 	type Vector = [x: number, y: number];
+	type Map = Record<string, boolean>;
 
-	let map: Record<string, boolean> = {};
+	let map: Map = {};
+	let history: Map[] = []
 
 	function getNeighbors(x: number, y: number): Vector[] {
 		return [
@@ -51,7 +53,7 @@
 	// make 1 iter of the game of life
 	function step() {
 		// Create a new object to store the updated state
-		const updatedMap: Record<string, boolean> = {};
+		const updatedMap: Map = {};
 
 		// iter through game of life
 		for (const [key, value] of Object.entries(map)) {
@@ -83,6 +85,9 @@
 				updatedMap[key] = true;
 			}
 		}
+
+		// Store the current state in the history
+		history.push(structuredClone(map));
 
 		// Apply the changes to the map
 		for (const [key, value] of Object.entries(updatedMap)) {
@@ -134,6 +139,18 @@
 	on:keypress={({ key }) => {
 		if (key === ' ') {
 			step();
+		}
+
+		if (key === 'z') {
+			map = history.pop() || {};
+		}
+
+		if (key.match(/\d/)) {
+			const xCoord = parseInt(key) - 2 + xOffset;
+			const yCoord = 11;
+			if (inBounds(xCoord, yCoord)) {
+				map[JSON.stringify([xCoord, yCoord])] = !map[JSON.stringify([xCoord, yCoord])];
+			}
 		}
 	}}
 />
