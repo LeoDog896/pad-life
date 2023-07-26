@@ -61,9 +61,21 @@
 			const [x, y] = JSON.parse(key);
 			const neighbors = getNeighbors(x, y);
 
+			// decide whether this cell lives or dies
+			if (!clickable(x, y)) {
+				const neighborCount = neighbors.filter(([nx, ny]) => map[JSON.stringify([nx, ny])]).length;
+
+				if (neighborCount < 2 || neighborCount > 3) {
+					updatedMap[key] = false;
+				} else {
+					updatedMap[key] = true;
+				}
+			}
+
 			// check for any neighbors that aren't alive and decide whether they should be
 			for (const [nx, ny] of neighbors) {
 				if (!inBounds(nx, ny)) continue;
+				if (clickable(nx, ny)) continue;
 
 				if (!map[JSON.stringify([nx, ny])]) {
 					const aliveNeighbors = getNeighbors(nx, ny).filter(
@@ -74,16 +86,6 @@
 						updatedMap[JSON.stringify([nx, ny])] = true;
 					}
 				}
-			}
-
-			// decide whether this cell lives or dies
-			if (clickable(x, y)) continue;
-			const neighborCount = neighbors.filter(([nx, ny]) => map[JSON.stringify([nx, ny])]).length;
-
-			if (neighborCount < 2 || neighborCount > 3) {
-				updatedMap[key] = false;
-			} else {
-				updatedMap[key] = true;
 			}
 		}
 
@@ -187,7 +189,7 @@
 	<Layer {render} />
 </Canvas>
 
-<button on:click={step}>Step</button>
+<button on:click={step}>Step (space)</button>
 
 <style>
 	:global(canvas) {
@@ -199,5 +201,13 @@
 		position: absolute;
 		bottom: 10px;
 		right: 10px;
+		background: white;
+		border: 1px solid black;
+		padding: 5px;
+		cursor: pointer;
+	}
+
+	button:hover {
+		background: #eee;
 	}
 </style>
