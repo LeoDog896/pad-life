@@ -29,11 +29,12 @@
 		];
 	}
 
+	const xOffset = 12;
+
 	function inBounds(x: number, y: number): boolean {
 		if (y > 11) return false;
 
 		if (y > 10) {
-			let xOffset = 12;
 			// only allow x -1, 0, and 1
 			if (x > xOffset + 1 || x < xOffset + -1) {
 				return false;
@@ -41,6 +42,10 @@
 		}
 
 		return true;
+	}
+
+	function clickable(x: number, y: number): boolean {
+		return y === 11;
 	}
 
 	// make 1 iter of the game of life
@@ -56,7 +61,6 @@
 
 			// check for any neighbors that aren't alive and decide whether they should be
 			for (const [nx, ny] of neighbors) {
-
 				if (!inBounds(nx, ny)) continue;
 
 				if (!map[JSON.stringify([nx, ny])]) {
@@ -104,11 +108,19 @@
 				const activeCell = map[JSON.stringify([xCoord, yCoord])];
 
 				if (activeCell) {
-					context.fillStyle = 'black';
+					if (clickable(xCoord, yCoord)) {
+						context.fillStyle = 'black';
+					} else {
+						context.fillStyle = '#2A2B2A';
+					}
 					context.fillRect(xPos, yPos, boxSize, boxSize);
 				} else {
 					context.fillStyle = 'white';
-					context.strokeStyle = 'gray';
+					if (clickable(xCoord, yCoord)) {
+						context.strokeStyle = 'black';
+					} else {
+						context.strokeStyle = 'gray';
+					}
 					context.strokeRect(xPos, yPos, boxSize, boxSize);
 				}
 			}
@@ -119,6 +131,14 @@
 <svelte:window
 	bind:innerWidth={width}
 	bind:innerHeight={height}
+	on:keypress={({ key }) => {
+		if (key === ' ') {
+			step();
+		}
+	}}
+/>
+
+<Canvas
 	on:wheel={({ deltaY }) => {
 		boxSize += deltaY / 100;
 		boxSize = Math.min(Math.max(30, boxSize), 100);
@@ -137,13 +157,15 @@
 		mouseDown = false;
 		if (!dragging) {
 			const [xCoord, yCoord] = screenToMap(offsetX, offsetY);
-			map[JSON.stringify([xCoord, yCoord])] = !map[JSON.stringify([xCoord, yCoord])];
+			if (clickable(xCoord, yCoord)) {
+				map[JSON.stringify([xCoord, yCoord])] = !map[JSON.stringify([xCoord, yCoord])];
+			}
 		}
 		dragging = false;
 	}}
-/>
-
-<Canvas {width} {height}>
+	{width}
+	{height}
+>
 	<Layer {render} />
 </Canvas>
 
